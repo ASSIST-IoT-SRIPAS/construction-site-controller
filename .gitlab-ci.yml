@@ -1,0 +1,3 @@
+include:
+  - project: 'sripas/gitlab-ci-templates'
+    file: 'docker-build.gitlab-ci.yml'
