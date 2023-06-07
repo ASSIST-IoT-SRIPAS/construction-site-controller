@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fuseki.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "fuseki.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.fuseki.autoscaling.enabled }}
+  replicas: {{ .Values.fuseki.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "fuseki.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fuseki.labels" . | nindent 8 }}
+    spec:
+      {{- with .Values.fuseki.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.enablerNodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if not .Values.enablerNodeSelector }}
+        {{- with .Values.fuseki.nodeSelector }}
+      nodeSelector:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.fuseki.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.fuseki.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.fuseki.podSecurityContext | nindent 8 }}
+      containers:
+        - name: fuseki
+          securityContext:
+            {{- toYaml .Values.fuseki.securityContext | nindent 12 }}
+          image: "{{ .Values.fuseki.image.repository }}:{{ .Values.fuseki.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.fuseki.image.pullPolicy }}
+          ports:
+            - name: fusekihttp
+              containerPort: {{ .Values.fuseki.service.ports.fusekihttp.containerPort }}
+              protocol: {{ .Values.fuseki.service.ports.fusekihttp.protocol }}
+          resources:
+            {{- toYaml .Values.fuseki.resources | nindent 12 }}
+          {{- with .Values.fuseki.envVars }}
+          env:
+            - name: EXAMPLE_ENV_VAR
+              value: {{ .exampleEnvVar | quote }}
+          {{- end }}

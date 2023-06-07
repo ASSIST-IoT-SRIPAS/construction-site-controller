@@ -1,0 +1,17 @@
+{{- if .Values.globalService }}
+apiVersion: assist.eu/v1
+kind: MultiClusterService
+metadata:
+  name: {{ include "fuseki.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    io.cilium/global-service: "true"
+  labels:
+    {{- include "fuseki.labels" . | nindent 4 }}
+spec:
+  ports:
+    - name: fusekihttp
+      port: {{ .Values.fuseki.service.ports.fusekihttp.port }}
+      targetPort: {{ .Values.fuseki.service.ports.fusekihttp.targetPort }}
+      protocol: {{ .Values.fuseki.service.ports.fusekihttp.protocol }}
+{{- end }}

@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "fuseki.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "fuseki.labels" . | nindent 4 }}
+  annotations:
+    {{- if .Values.globalService }}
+    {{- include "globalServiceAnnotations" . | nindent 4 }}
+    {{- end }}
+spec:
+  type: {{ .Values.fuseki.service.type }}
+  ports:
+    - name: fusekihttp
+      port: {{ .Values.fuseki.service.ports.fusekihttp.port }}
+      targetPort: {{ .Values.fuseki.service.ports.fusekihttp.targetPort }}
+      protocol: {{ .Values.fuseki.service.ports.fusekihttp.protocol }}
+      {{- if and (or (eq .Values.fuseki.service.type "NodePort") (eq .Values.fuseki.service.type "LoadBalancer")) (not (empty .Values.fuseki.service.ports.fusekihttp.nodePort)) }}
+      nodePort: {{ .Values.fuseki.service.ports.fusekihttp.nodePort }}
+      {{- end }}
+  selector:
+    {{- include "fuseki.selectorLabels" . | nindent 4 }}

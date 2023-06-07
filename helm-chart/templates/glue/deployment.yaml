@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "glue.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "glue.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.glue.autoscaling.enabled }}
+  replicas: {{ .Values.glue.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "glue.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "glue.labels" . | nindent 8 }}
+    spec:
+      {{- with .Values.glue.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.enablerNodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if not .Values.enablerNodeSelector }}
+        {{- with .Values.glue.nodeSelector }}
+      nodeSelector:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.glue.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.glue.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.glue.podSecurityContext | nindent 8 }}
+      containers:
+        - name: glue
+          securityContext:
+            {{- toYaml .Values.glue.securityContext | nindent 12 }}
+          image: "{{ .Values.glue.image.repository }}:{{ .Values.glue.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.glue.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.glue.resources | nindent 12 }}
+          env:
+            - name: GLUE_LTSE_POSTGREST_ENDPOINT
+              value: {{ .Values.glue.envVars.ltsePostgrestEndpoint | quote }}
+            - name: GLUE_MQTT_HOST
+              value: {{ .Values.glue.envVars.mqttHost | quote }}
+            - name: GLUE_MQTT_PORT
+              value: {{ .Values.glue.envVars.mqttPort | quote }}
+            - name: GLUE_CSC_ENDPOINT_CONFIG
+              value: {{ include "fuseki.configGraphUrl" . | quote }}
+            - name: GLUE_CSC_ENDPOINT_WORKERS
+              value: {{ include "fuseki.workersGraphUrl" . | quote }}
+            - name: GLUE_POLL_INTERVAL
+              value: {{ .Values.glue.envVars.pollInterval | quote }}
