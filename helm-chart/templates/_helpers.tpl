@@ -83,14 +83,14 @@ tier: {{ .Values.fuseki.tier }}
 Fuseki config graph endpoint.
 */}}
 {{- define "fuseki.configGraphUrl" -}}
-{{- print "http://" (include "fuseki.fullname" .) ":" .Values.fuseki.service.port "/config/" }}
+{{- print "http://" (include "fuseki.fullname" .) ":" .Values.fuseki.service.ports.fusekihttp.port "/config/" }}
 {{- end }}
 
 {{/*
 Fuseki workers graph endpoint.
 */}}
 {{- define "fuseki.workersGraphUrl" -}}
-{{- print "http://" (include "fuseki.fullname" .) ":" .Values.fuseki.service.port "/workers/" }}
+{{- print "http://" (include "fuseki.fullname" .) ":" .Values.fuseki.service.ports.fusekihttp.port "/workers/" }}
 {{- end }}
 
 {{/*
