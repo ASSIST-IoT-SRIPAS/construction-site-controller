@@ -1,0 +1,30 @@
+version: '3.0'
+services:
+  fuseki:
+    image: gitlab.assist-iot.eu:5050/wp7/pilot-2/registry/construction-site-controller:latest
+    restart: unless-stopped
+    ports:
+      - 3030:3030
+    volumes:
+      - ./run:/run
+
+  glue:
+    image: gitlab.assist-iot.eu:5050/wp7/pilot-2/registry/csc-glue:latest
+    restart: unless-stopped
+    environment:
+      GLUE_CSC_ENDPOINT_CONFIG: http://fuseki:3030/config/
+      GLUE_CSC_ENDPOINT_WORKERS: http://fuseki:3030/workers/
+      GLUE_LTSE_POSTGREST_ENDPOINT: http://ltse-postgrest:3000
+      GLUE_POLL_INTERVAL: 10
+      GLUE_MQTT_HOST: verne
+      GLUE_MQTT_PORT: 1883
+    networks:
+      - mqtt
+      - default
+    depends_on:
+      - fuseki
+
+networks:
+  mqtt:
+    name: mqtt
+    external: true
