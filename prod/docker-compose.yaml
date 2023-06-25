@@ -18,13 +18,13 @@ services:
       GLUE_POLL_INTERVAL: 10
       GLUE_MQTT_HOST: verne
       GLUE_MQTT_PORT: 1883
-    networks:
-      - mqtt
-      - default
+#    networks:
+#      - mqtt
+#      - default
     depends_on:
       - fuseki
 
 networks:
-  mqtt:
+  default:
     name: mqtt
     external: true

@@ -88,6 +88,17 @@ glue:
     tag: "latest"
     pullPolicy: IfNotPresent
 
+  # Configuration of the service: type and ports.
+  service:
+    type: NodePort
+    ports:
+      gluehttp:
+        port: 5010
+        targetPort: 5010
+        containerPort: 5010
+        nodePort: ""
+        protocol: TCP
+
   # The specification of the resources is needed for the proper functioning 
   # of the Smart Orchestrator enabler (requests)
   # and of the Resource provisioning enabler (limits).

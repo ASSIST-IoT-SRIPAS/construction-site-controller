@@ -47,6 +47,10 @@ spec:
             {{- toYaml .Values.glue.securityContext | nindent 12 }}
           image: "{{ .Values.glue.image.repository }}:{{ .Values.glue.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.glue.image.pullPolicy }}
+          ports:
+            - name: gluehttp
+              containerPort: {{ .Values.glue.service.ports.gluehttp.containerPort }}
+              protocol: {{ .Values.glue.service.ports.gluehttp.protocol }}
           resources:
             {{- toYaml .Values.glue.resources | nindent 12 }}
           env:

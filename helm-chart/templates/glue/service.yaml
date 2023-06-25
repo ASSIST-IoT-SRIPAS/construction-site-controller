@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "glue.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "glue.labels" . | nindent 4 }}
+  annotations:
+    {{- if .Values.globalService }}
+    {{- include "globalServiceAnnotations" . | nindent 4 }}
+    {{- end }}
+spec:
+  type: {{ .Values.glue.service.type }}
+  ports:
+    - name: gluehttp
+      port: {{ .Values.glue.service.ports.gluehttp.port }}
+      targetPort: {{ .Values.glue.service.ports.gluehttp.targetPort }}
+      protocol: {{ .Values.glue.service.ports.gluehttp.protocol }}
+      {{- if and (or (eq .Values.glue.service.type "NodePort") (eq .Values.glue.service.type "LoadBalancer")) (not (empty .Values.glue.service.ports.gluehttp.nodePort)) }}
+      nodePort: {{ .Values.glue.service.ports.gluehttp.nodePort }}
+      {{- end }}
+  selector:
+    {{- include "glue.selectorLabels" . | nindent 4 }}
