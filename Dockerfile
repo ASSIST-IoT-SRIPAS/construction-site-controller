@@ -10,6 +10,7 @@ ARG JAVA_MINIMAL=/opt/java-minimal
 FROM openjdk:${OPENJDK_VERSION}-alpine AS base
 
 COPY fuseki /fuseki
+COPY shiro.ini /run/shiro.ini
 
 EXPOSE 3030
 
