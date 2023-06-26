@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "fuseki.svc.headless" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "fuseki.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    - name: fusekihttp
+      port: {{ .Values.fuseki.service.ports.fusekihttp.port }}
+      targetPort: {{ .Values.fuseki.service.ports.fusekihttp.targetPort }}
+      protocol: {{ .Values.fuseki.service.ports.fusekihttp.protocol }}
+  selector:
+    {{- include "fuseki.selectorLabels" . | nindent 4 }}

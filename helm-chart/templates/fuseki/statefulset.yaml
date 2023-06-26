@@ -1,11 +1,12 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "fuseki.fullname" . }}
   namespace: {{ .Release.Namespace | quote }}
   labels:
     {{- include "fuseki.labels" . | nindent 4 }}
 spec:
+  serviceName: {{ include "fuseki.fullname" . }}-headless
   {{- if not .Values.fuseki.autoscaling.enabled }}
   replicas: {{ .Values.fuseki.replicaCount }}
   {{- end }}
@@ -58,3 +59,29 @@ spec:
             - name: EXAMPLE_ENV_VAR
               value: {{ .exampleEnvVar | quote }}
           {{- end }}
+          volumeMounts:
+            {{- if .Values.fuseki.persistence.enabled }}
+            - name: data
+              mountPath: /run
+            {{- end }}
+      volumes:
+  {{- if and .Values.fuseki.persistence.enabled .Values.fuseki.persistence.existingClaim }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ tpl .Values.fuseki.persistence.existingClaim $ }}
+  {{- else if not .Values.fuseki.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+  {{- else }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+        {{- range .Values.fuseki.persistence.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.fuseki.persistence.size | quote }}
+  {{- end }}

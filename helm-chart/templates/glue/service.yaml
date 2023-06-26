@@ -5,10 +5,6 @@ metadata:
   namespace: {{ .Release.Namespace | quote }}
   labels:
     {{- include "glue.labels" . | nindent 4 }}
-  annotations:
-    {{- if .Values.globalService }}
-    {{- include "globalServiceAnnotations" . | nindent 4 }}
-    {{- end }}
 spec:
   type: {{ .Values.glue.service.type }}
   ports:

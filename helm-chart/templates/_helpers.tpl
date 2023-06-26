@@ -54,6 +54,12 @@ If release name contains chart name it will be used as a full name.
 {{- printf "%s-fuseki" (include "enabler.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
+{{/*
+Create the default FQDN for fuseki headless service.
+*/}}
+{{- define "fuseki.svc.headless" -}}
+{{- printf "%s-headless" (include "fuseki.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
 
 {{/*
 Component fuseki labels.
